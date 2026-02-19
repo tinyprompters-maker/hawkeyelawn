@@ -1,0 +1,17 @@
+name = "hawkeyelawn-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hawkeyelawn-db"
+database_id = "174d9cc0-0a9a-4ed4-ad7b-34c54c1821ff"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "7dd359bdc70049ee85498f5be04c9330"
+
+# Secrets — add these via Cloudflare Dashboard, NOT here
+# Dashboard → Workers & Pages → hawkeyelawn-api → Settings → Variables and Secrets
+# COINBASE_COMMERCE_API_KEY  (Secret)
+# COINBASE_WEBHOOK_SECRET    (Secret)

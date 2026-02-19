@@ -1,0 +1,19 @@
+{
+  "name": "hawkeyelawn",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "workers/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "cd apps/web && npm run dev",
+    "build": "cd apps/web && npm run build",
+    "deploy:worker": "cd workers/api && npx wrangler deploy",
+    "deploy:web": "cd apps/web && npx vercel --prod"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
