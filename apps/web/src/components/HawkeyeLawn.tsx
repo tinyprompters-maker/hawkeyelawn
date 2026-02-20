@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 
 // ─── LIVE INFRASTRUCTURE ─────────────────────────────────────
 const API = "https://hawkeyelawn-api.tinyprompters.workers.dev";
-const PRO_PASSWORD = "HawkeyePro2026!";
 const GOLD = "#FFCD00";
 const BLACK = "#000000";
 
@@ -101,46 +100,6 @@ function StepBar({ current }: { current: number }) {
   );
 }
 
-function ProLoginModal({ onClose, onSuccess }: { onClose: () => void, onSuccess: () => void }) {
-  const [pw, setPw] = useState("");
-  const [error, setError] = useState(false);
-  const [shake, setShake] = useState(false);
-
-  function attempt() {
-    if (pw === PRO_PASSWORD) { onSuccess(); }
-    else {
-      setError(true); setShake(true); setPw("");
-      setTimeout(() => setShake(false), 500);
-    }
-  }
-
-  return (
-    <div style={{position:"fixed",inset:0,background:"#000000ee",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-      <div className={shake?"shake":""} style={{background:"#0a0a0a",border:`2px solid ${GOLD}`,borderRadius:14,padding:32,width:"100%",maxWidth:400,animation:"slideUp .3s ease"}}>
-        <div style={{textAlign:"center",marginBottom:28}}>
-          <div style={{fontSize:40,marginBottom:10}}>🦅</div>
-          <div style={{fontWeight:900,fontSize:28,textTransform:"uppercase",color:GOLD}}>PRO LOGIN</div>
-          <div style={{fontFamily:"'Barlow',sans-serif",fontSize:13,color:"#555",marginTop:6}}>HawkeyeLawn Contractor Portal</div>
-        </div>
-        {error && (
-          <div style={{background:"#1a0000",border:"1px solid #ff4444",borderRadius:6,padding:12,marginBottom:16,fontFamily:"'Barlow',sans-serif",fontSize:13,color:"#ff6666",textAlign:"center"}}>
-            ❌ Invalid password. Contact your admin.
-          </div>
-        )}
-        <div style={{marginBottom:16}}>
-          <input type="password" placeholder="Enter pro password" value={pw}
-            onChange={e=>{setPw(e.target.value);setError(false);}}
-            onKeyDown={e=>e.key==="Enter"&&attempt()} autoFocus />
-        </div>
-        <button className="btn" onClick={attempt} style={{marginBottom:10}}>ENTER DASHBOARD →</button>
-        <button className="btn-out" onClick={onClose}>CANCEL</button>
-        <p style={{fontFamily:"'Barlow',sans-serif",fontSize:11,color:"#333",textAlign:"center",marginTop:16}}>
-          🔒 Secure contractor access only · Not for customers
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function CryptoModal({ price, onClose, onPaid }: { price: number, onClose: () => void, onPaid: () => void }) {
   const [coin, setCoin] = useState("USDC");
@@ -475,9 +434,13 @@ export default function HawkeyeLawn() {
         )}
       </div>
 
-      <div style={{borderTop:"1px solid #0e0e0e",padding:"14px 20px",display:"flex",justifyContent:"space-between",fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#333"}}>
+      <div style={{borderTop:"1px solid #0e0e0e",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#333"}}>
         <span>© 2026 HawkeyeLawn.com · Cedar Rapids, Iowa</span>
-        <span>Privacy · Terms</span>
+        <span style={{display:"flex",gap:16}}>
+          <a href="/privacy" style={{color:"#444",textDecoration:"none"}}>Privacy</a>
+          <a href="/terms" style={{color:"#444",textDecoration:"none"}}>Terms</a>
+          <a href="mailto:info@hawkeyelawn.com" style={{color:"#444",textDecoration:"none"}}>Contact</a>
+        </span>
       </div>
 
       {cryptoOpen && <CryptoModal price={price} onClose={()=>setCryptoOpen(false)} onPaid={()=>{setCryptoOpen(false);setStep(5);}}/>}
