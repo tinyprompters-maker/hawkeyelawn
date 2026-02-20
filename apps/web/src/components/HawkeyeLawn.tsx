@@ -245,7 +245,7 @@ export default function HawkeyeLawn() {
           <div style={{width:34,height:34,background:GOLD,borderRadius:5,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>🦅</div>
           <span style={{fontWeight:900,fontSize:24,letterSpacing:1,color:GOLD}}>HAWKEYE<span style={{color:"white"}}>LAWN</span></span>
         </div>
-        <a href="/api/auth/signin/google" style={{textDecoration:"none"}}>
+        <a href="https://accounts.google.com/o/oauth2/v2/auth?client_id=956492835638-3r45ipiq7pnfmhq9i73bb4kaqe950asj.apps.googleusercontent.com&redirect_uri=https://hawkeyelawn.com/api/auth/callback&response_type=code&scope=email%20profile" style={{textDecoration:"none"}}>
           <button className="btn-out" style={{width:"auto",fontSize:13,padding:"8px 16px",display:"flex",alignItems:"center",gap:6}}>
             <span style={{fontSize:14}}>G</span> PRO LOGIN
           </button>
