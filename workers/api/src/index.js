@@ -29,6 +29,11 @@ export default {
       return new Response(null, { status: 204, headers: CORS });
     }
 
+    // POST /api/leads/capture — capture lead from booking form
+    if (path === "/api/leads/capture" && request.method === "POST") {
+      return handleLeadCapture(request, env);
+    }
+
     // POST /api/jobs/create — homeowner submits a new job
     if (path === "/api/jobs/create" && request.method === "POST") {
       return handleCreateJob(request, env);
@@ -312,6 +317,86 @@ async function handleEarnings(contractorId, env) {
     `).bind(contractorId).first();
 
     return json({ earnings });
+  } catch (e) {
+    return json({ error: e.message }, 500);
+  }
+}
+
+// ── LEAD CAPTURE ─────────────────────────────────────────────
+// Fires on Step 2 of booking flow (name/email/phone collected)
+// Writes to: D1 (leads table) + Notion + email via Zapier webhook
+async function handleLeadCapture(request, env) {
+  try {
+    const { name, email, phone, address, yard_size, service, price_usd, timestamp } = await request.json();
+
+    if (!name) return json({ error: "name required" }, 400);
+
+    const leadId = "lead_" + uid();
+    const now = timestamp || new Date().toISOString();
+
+    // 1. Write to D1 leads table (create if needed)
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS leads (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        phone TEXT,
+        address TEXT,
+        yard_size TEXT,
+        service TEXT,
+        price_usd INTEGER,
+        status TEXT DEFAULT 'new',
+        created_at TEXT DEFAULT (datetime('now'))
+      )
+    `).run();
+
+    await env.DB.prepare(`
+      INSERT INTO leads (id, name, email, phone, address, yard_size, service, price_usd, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(leadId, name, email || null, phone || null, address || null, yard_size || null, service || null, price_usd || null, now).run();
+
+    // 2. Post to Notion via MCP (if NOTION_TOKEN set)
+    if (env.NOTION_TOKEN) {
+      await fetch("https://api.notion.com/v1/pages", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${env.NOTION_TOKEN}`,
+          "Content-Type": "application/json",
+          "Notion-Version": "2022-06-28",
+        },
+        body: JSON.stringify({
+          parent: { database_id: "f3d1b354-2b4e-4feb-bf0e-b5d3126be6fe" },
+          properties: {
+            "Customer Name": { title: [{ text: { content: name } }] },
+            "Phone": { phone_number: phone || null },
+            "Address": { rich_text: [{ text: { content: address || "" } }] },
+            "Yard Size": yard_size ? { select: { name: yard_size } } : undefined,
+            "Service": service ? { select: { name: service } } : undefined,
+            "Price": price_usd ? { number: price_usd } : undefined,
+            "Status": { select: { name: "New Lead" } },
+            "Job ID": { rich_text: [{ text: { content: leadId } }] },
+            "Date Requested": { date: { start: now.split("T")[0] } },
+          }
+        })
+      }).catch(() => {}); // non-blocking, don't fail if Notion is down
+    }
+
+    // 3. Fire Zapier webhook (if ZAPIER_WEBHOOK_URL set)
+    if (env.ZAPIER_WEBHOOK_URL) {
+      await fetch(env.ZAPIER_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lead_id: leadId,
+          name, email, phone, address,
+          yard_size, service, price_usd,
+          timestamp: now,
+          source: "hawkeyelawn.com"
+        })
+      }).catch(() => {}); // non-blocking
+    }
+
+    return json({ success: true, lead_id: leadId });
   } catch (e) {
     return json({ error: e.message }, 500);
   }
