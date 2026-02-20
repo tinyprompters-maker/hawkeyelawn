@@ -345,7 +345,7 @@ export default function HawkeyeLawn() {
                 <div style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#555"}}>Pay with card or crypto — zero hidden fees</div>
               </div>
             )}
-            <button className="btn" disabled={!yard} onClick={()=>yard&&setStep(4)}>CHOOSE PAYMENT →</button>
+            <button className="btn" disabled={!yard} onClick={()=>yard&&setStep(4)}>SEE MY QUOTE →</button>
             <button className="btn-out" style={{marginTop:10}} onClick={()=>setStep(2)}>← BACK</button>
           </div>
         )}
@@ -353,47 +353,88 @@ export default function HawkeyeLawn() {
         {step===4 && (
           <div className="slide">
             <StepBar current={3}/>
-            <h2 style={{fontSize:38,fontWeight:900,textTransform:"uppercase",marginBottom:4}}>PAYMENT</h2>
-            <p style={{fontFamily:"'Barlow',sans-serif",color:"#555",fontSize:13,marginBottom:22}}>Confirmation sent to {leadEmail||leadPhone}.</p>
-            <div style={{background:"#111",border:"1px solid #1e1e1e",borderRadius:8,padding:18,marginBottom:24}}>
-              <div style={{fontWeight:800,fontSize:12,textTransform:"uppercase",color:GOLD,letterSpacing:2,marginBottom:14}}>ORDER SUMMARY</div>
-              {[["👤 Name",leadName],["📍 Address",address.split(",")[0]],["📐 Yard",YARD_SIZES.find(y=>y.id===yard)?.label||""],["🌿 Service",SERVICES.find(s=>s.id===svc)?.label||""]].map(([l,v])=>(
+            <h2 style={{fontSize:38,fontWeight:900,textTransform:"uppercase",marginBottom:4}}>YOUR QUOTE</h2>
+            <p style={{fontFamily:"'Barlow',sans-serif",color:"#555",fontSize:13,marginBottom:18}}>Hey {leadName.split(" ")[0]}! Here&apos;s your instant price — no hidden fees.</p>
+            <div style={{background:"#0d0d00",border:`2px solid ${GOLD}`,borderRadius:10,padding:24,marginBottom:20,textAlign:"center"}}>
+              <div style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#777",marginBottom:4,textTransform:"uppercase",letterSpacing:2}}>YOUR PRICE TODAY</div>
+              <div style={{fontSize:80,fontWeight:900,color:GOLD,lineHeight:1}}>${price}</div>
+              <div style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#555",marginTop:6}}>Flat rate · No surprises · Cedar Rapids</div>
+            </div>
+            <div style={{background:"#111",border:"1px solid #1e1e1e",borderRadius:8,padding:16,marginBottom:20}}>
+              {[["📍 Address",address.split(",")[0]],["📐 Yard",YARD_SIZES.find(y=>y.id===yard)?.label||""],["🌿 Service",SERVICES.find(s=>s.id===svc)?.label||""],["📞 Contact",leadPhone||leadEmail]].map(([l,v])=>(
                 <div key={l} style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontFamily:"'Barlow',sans-serif",fontSize:14}}>
-                  <span style={{color:"#666"}}>{l}</span><span>{v}</span>
+                  <span style={{color:"#666"}}>{l}</span><span style={{color:"#ccc"}}>{v}</span>
                 </div>
               ))}
-              <div style={{borderTop:"1px solid #1e1e1e",paddingTop:12,display:"flex",justifyContent:"space-between",fontWeight:900,fontSize:24}}>
-                <span>TOTAL</span><span style={{color:GOLD}}>${price}</span>
-              </div>
             </div>
-            <div style={{fontWeight:800,fontSize:12,textTransform:"uppercase",letterSpacing:2,color:"#666",marginBottom:12}}>How do you want to pay?</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
-              <div className={`pay-opt${payMethod==="stripe"?" on":""}`} onClick={()=>setPayMethod("stripe")}>
-                <div style={{fontSize:36,marginBottom:8}}>💳</div>
-                <div style={{fontWeight:900,fontSize:18,textTransform:"uppercase"}}>Card</div>
-                <div style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#666"}}>Visa · MC · Amex</div>
+            <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:16}}>
+              <div>
+                <div style={{fontWeight:800,fontSize:11,textTransform:"uppercase",letterSpacing:2,color:"#666",marginBottom:8,textAlign:"center"}}>Ready to book?</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:8}}>
+                  <div className={`pay-opt${payMethod==="stripe"?" on":""}`} onClick={()=>setPayMethod("stripe")}>
+                    <div style={{fontSize:28,marginBottom:6}}>💳</div>
+                    <div style={{fontWeight:900,fontSize:15,textTransform:"uppercase"}}>Card</div>
+                    <div style={{fontFamily:"'Barlow',sans-serif",fontSize:11,color:"#666"}}>Visa · MC · Amex</div>
+                  </div>
+                  <div className={`pay-opt${payMethod==="crypto"?" on":""}`} onClick={()=>setPayMethod("crypto")}>
+                    <div style={{fontSize:28,marginBottom:6}}>₿</div>
+                    <div style={{fontWeight:900,fontSize:15,textTransform:"uppercase"}}>Crypto</div>
+                    <div style={{fontFamily:"'Barlow',sans-serif",fontSize:11,color:"#666"}}>BTC · ETH · SOL</div>
+                  </div>
+                </div>
+                {payMethod==="stripe" && (
+                  <div style={{animation:"slideUp .3s ease"}}>
+                    <a href={STRIPE_LINKS[yard as keyof typeof STRIPE_LINKS]} target="_blank" rel="noreferrer" style={{textDecoration:"none"}}>
+                      <button className="btn glow" style={{fontSize:20}} onClick={()=>setTimeout(()=>setStep(5),500)}>💳 BOOK NOW — PAY ${price} →</button>
+                    </a>
+                    <p style={{fontFamily:"'Barlow',sans-serif",fontSize:11,color:"#444",textAlign:"center",marginTop:6}}>Stripe Checkout · 256-bit SSL</p>
+                  </div>
+                )}
+                {payMethod==="crypto" && (
+                  <div style={{animation:"slideUp .3s ease"}}>
+                    <button className="btn-crypto" onClick={()=>setCryptoOpen(true)}>₿ PAY ${price} WITH CRYPTO →</button>
+                  </div>
+                )}
               </div>
-              <div className={`pay-opt${payMethod==="crypto"?" on":""}`} onClick={()=>setPayMethod("crypto")}>
-                <div style={{fontSize:36,marginBottom:8}}>₿</div>
-                <div style={{fontWeight:900,fontSize:18,textTransform:"uppercase"}}>Crypto</div>
-                <div style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#666"}}>BTC · ETH · SOL · USDC</div>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{flex:1,height:1,background:"#1e1e1e"}}/>
+                <span style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#444"}}>or not ready yet?</span>
+                <div style={{flex:1,height:1,background:"#1e1e1e"}}/>
               </div>
+              <button className="btn-out" style={{fontSize:16,padding:"16px"}} onClick={()=>setStep(6)}>
+                📩 SAVE MY QUOTE — WE&apos;LL FOLLOW UP
+              </button>
+              <p style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#444",textAlign:"center",margin:"-4px 0 0"}}>Your quote link will be sent to your phone &amp; email</p>
             </div>
-            {payMethod==="stripe" && (
-              <div style={{animation:"slideUp .3s ease"}}>
-                <a href={STRIPE_LINKS[yard as keyof typeof STRIPE_LINKS]} target="_blank" rel="noreferrer" style={{textDecoration:"none"}}>
-                  <button className="btn glow" style={{fontSize:22}} onClick={()=>setTimeout(()=>setStep(5),500)}>💳 PAY ${price} WITH CARD →</button>
-                </a>
-                <p style={{fontFamily:"'Barlow',sans-serif",fontSize:12,color:"#444",textAlign:"center",marginTop:8}}>Stripe Checkout · 256-bit SSL · Encrypted</p>
+            <button className="btn-out" style={{fontSize:13,padding:"10px"}} onClick={()=>setStep(3)}>← BACK</button>
+          </div>
+        )}
+
+        {step===6 && (
+          <div className="slide">
+            <StepBar current={4}/>
+            <div style={{textAlign:"center",paddingTop:20}}>
+              <div style={{fontSize:70,marginBottom:16}}>📩</div>
+              <h2 style={{fontSize:36,fontWeight:900,textTransform:"uppercase",marginBottom:8}}>QUOTE<br/><span style={{color:GOLD}}>SAVED!</span></h2>
+              <p style={{fontFamily:"'Barlow',sans-serif",color:"#ccc",fontSize:16,marginBottom:6}}>
+                Hey {leadName.split(" ")[0]}, your quote has been sent!
+              </p>
+              <p style={{fontFamily:"'Barlow',sans-serif",color:"#666",fontSize:13,marginBottom:28}}>
+                Your ${price} quote link was sent to {leadPhone||leadEmail}.<br/>A Hawkeye rep will follow up within 2 hours.
+              </p>
+              <div style={{background:"#111",border:"1px solid #1e1e1e",borderRadius:8,padding:18,marginBottom:28,textAlign:"left"}}>
+                <div style={{fontWeight:800,fontSize:11,textTransform:"uppercase",color:GOLD,letterSpacing:2,marginBottom:12}}>Your Quote Summary</div>
+                {[["📍",address.split(",")[0]],["📐",YARD_SIZES.find(y=>y.id===yard)?.label||""],["🌿",SERVICES.find(s=>s.id===svc)?.label||""],["💰",`$${price} flat rate`]].map(([icon,val])=>(
+                  <div key={icon} style={{display:"flex",gap:10,marginBottom:8,fontFamily:"'Barlow',sans-serif",fontSize:14,color:"#ccc"}}>
+                    <span>{icon}</span><span>{val}</span>
+                  </div>
+                ))}
               </div>
-            )}
-            {payMethod==="crypto" && (
-              <div style={{animation:"slideUp .3s ease"}}>
-                <button className="btn-crypto" onClick={()=>setCryptoOpen(true)}>₿ PAY ${price} WITH CRYPTO →</button>
-              </div>
-            )}
-            {!payMethod && <button className="btn" disabled>SELECT A PAYMENT METHOD ABOVE</button>}
-            <button className="btn-out" style={{marginTop:12}} onClick={()=>setStep(3)}>← BACK</button>
+              <p style={{fontFamily:"'Barlow',sans-serif",color:"#555",fontSize:13,marginBottom:20}}>Changed your mind? Book right now:</p>
+              <a href={STRIPE_LINKS[yard as keyof typeof STRIPE_LINKS]} target="_blank" rel="noreferrer" style={{textDecoration:"none"}}>
+                <button className="btn glow" style={{fontSize:18}}>💳 BOOK NOW — PAY ${price} →</button>
+              </a>
+            </div>
           </div>
         )}
 
