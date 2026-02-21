@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 // It checks the email is allowed, then sets a secure cookie.
 // No NextAuth needed — this is plain Next.js.
 
-const ALLOWED_EMAIL = "chuckgptx@gmail.com";
+const ALLOWED_EMAILS = ["chuckgptx@gmail.com", "tinyprompters@gmail.com"];
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     const user = await userRes.json();
 
     // Step 3: Only allow the one approved email
-    if (user.email !== ALLOWED_EMAIL) {
+    if (!ALLOWED_EMAILS.includes(user.email)) {
       return NextResponse.redirect(new URL("/auth/error", req.url));
     }
 
