@@ -29,23 +29,17 @@ hawkeyelawn/
 | Crypto Payments | Coinbase Commerce |
 | Hosting | Vercel (web) + Cloudflare Workers (API) |
 
-## Live Infrastructure
+## Deployment Notes
 
-| Resource | ID |
-|----------|----|
-| Stripe Account | `acct_1R0mI1CHq2ueHUIS` |
-| Cloudflare Account | `30448c96f02660484f02a55f859a786f` |
-| D1 Database | `hawkeyelawn-db` · `174d9cc0-0a9a-4ed4-ad7b-34c54c1821ff` |
-| KV Namespace | `AUTH_STORE` · `7dd359bdc70049ee85498f5be04c9330` |
+This repository is safe to inspect publicly. Live account IDs, payment links, worker URLs, database IDs, and namespace IDs are intentionally kept out of the README and should live in private ops documentation or provider dashboards.
 
-## Stripe Payment Links (Live)
+The production deployment uses:
 
-| Yard Size | Price | Link |
-|-----------|-------|------|
-| Small (< 5k sq ft) | $35 | https://buy.stripe.com/00w28qfTy3xu0dy3Vl0oM07 |
-| Medium (5–10k sq ft) | $65 | https://buy.stripe.com/3cIdR88r63xu3pKdvV0oM08 |
-| Large (10–20k sq ft) | $95 | https://buy.stripe.com/fZudR88r68RO3pKbnN0oM09 |
-| XL (> 20k sq ft) | $125 | https://buy.stripe.com/8x27sKfTy4Byf8s2Rh0oM0a |
+- Vercel for the web app
+- Cloudflare Workers for the API
+- Cloudflare D1/KV for edge data and lightweight state
+- Stripe Checkout for card payments
+- Coinbase Commerce for crypto payments
 
 ## Quick Start
 
@@ -68,7 +62,7 @@ npm run deploy:web
 ### apps/web/.env.local
 ```
 NEXT_PUBLIC_API_URL=https://hawkeyelawn-api.<subdomain>.workers.dev
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_...
 ```
 
 ### workers/api — set as Cloudflare Secrets (never in files)
